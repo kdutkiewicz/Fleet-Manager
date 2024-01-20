@@ -1,0 +1,1 @@
+-- CREATE TABLE CAR(id, varchar(255));
