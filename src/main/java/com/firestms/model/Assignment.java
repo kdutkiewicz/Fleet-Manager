@@ -1,13 +1,20 @@
 package com.firestms.model;
 
-import java.time.Instant;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Assignment {
 
-    private UUID id;
     private String carId;
     private String trailerId;
-    private Instant startTime;
-    private Instant endTime;
+    private Optional<Date> startTime;
+    private Optional<Date> endTime;
 }

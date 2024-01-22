@@ -1,7 +1,7 @@
 package com.firestms.service;
 
+import com.firestms.model.CarEntity;
 import com.firestms.model.Car;
-import com.firestms.model.CarPOJO;
 import com.firestms.repository.CarRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ public class CarServiceImpl implements CarService {
     CarRepository carRepository;
 
     @Override
-    public List<CarPOJO> getAllCars() {
-        List<Car> listOfAllCars = Lists.newArrayList(carRepository.findAll());
+    public List<Car> getAllCars() {
+        List<CarEntity> listOfAllCars = Lists.newArrayList(carRepository.findAll());
         return listOfAllCars.stream().map(CarMapper::mapCarToCarPOJO).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<CarPOJO> findByRegistrationNumber(String registrationNumber) {
+    public Optional<Car> findByRegistrationNumber(String registrationNumber) {
         return carRepository.findById(registrationNumber).map(CarMapper::mapCarToCarPOJO);
     }
 
@@ -34,28 +34,26 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public CarPOJO addCar(CarPOJO carPOJO) {
-        return CarMapper.mapCarToCarPOJO(carRepository.save(CarMapper.mapCarPOJOToCar(carPOJO)));
+    public CarEntity addCar(CarEntity car) {
+        return carRepository.save(car);
     }
 
     @Override
-    public CarPOJO updateCar(CarPOJO car) {
+    public CarEntity updateCar(CarEntity car) {
         return null;
     }
 
     private class CarMapper {
 
-        static CarPOJO mapCarToCarPOJO(Car car){
-            return CarPOJO.builder()
+        static Car mapCarToCarPOJO(CarEntity car){
+            return Car.builder()
                 .registrationNumber(car.getRegistrationNumber())
-                .company(car.getCompany())
                 .build();
         }
 
-        static Car mapCarPOJOToCar(CarPOJO carPOJO){
-            return Car.builder()
+        static CarEntity mapCarPOJOToCar(Car carPOJO){
+            return CarEntity.builder()
                 .registrationNumber(carPOJO.getRegistrationNumber())
-                .company(carPOJO.getCompany())
                 .build();
         }
     }

@@ -1,8 +1,8 @@
 package com.firestms.repository;
 
-import com.firestms.model.Car;
+import com.firestms.model.CarEntity;
 import org.springframework.data.repository.CrudRepository;
 
 
-public interface CarRepository extends CrudRepository<Car, String> {
+public interface CarRepository extends CrudRepository<CarEntity, String> {
 }

@@ -1,20 +1,21 @@
 package com.firestms.service;
 
-import com.firestms.model.CarPOJO;
+import com.firestms.model.Car;
+import com.firestms.model.CarEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CarService {
 
-    List<CarPOJO> getAllCars();
+    List<Car> getAllCars();
 
-    Optional<CarPOJO> findByRegistrationNumber(String registrationNumber);
+    Optional<Car> findByRegistrationNumber(String registrationNumber);
 
     void deleteCarById(String registrationNumber);
 
-    CarPOJO addCar(CarPOJO carPOJO);
+    CarEntity addCar(CarEntity carPOJO);
 
-    CarPOJO updateCar(CarPOJO car);
+    CarEntity updateCar(CarEntity car);
 
 }
