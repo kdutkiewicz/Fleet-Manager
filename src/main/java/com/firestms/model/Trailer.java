@@ -9,5 +9,5 @@ import lombok.Data;
 public class Trailer {
 
     @Id
-    private String id;
+    private String registrationNumber;
 }

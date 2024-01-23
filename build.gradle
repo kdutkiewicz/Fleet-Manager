@@ -16,8 +16,11 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '3.2.2'
     implementation group: 'com.h2database', name: 'h2', version: '2.2.224'
     implementation 'org.projectlombok:lombok:1.18.26'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     implementation group: 'com.google.guava', name: 'guava', version: '11.0.2'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '3.2.2'
+
 
 
 
