@@ -1,8 +1,11 @@
 package com.firestms.service;
 
+import com.firestms.Exception.ConflictException;
+import com.firestms.Exception.ResourceNotFoundException;
 import com.firestms.model.Assignment;
 import com.firestms.model.Car;
 import com.firestms.model.CarWithAssignments;
+import com.firestms.model.Trailer;
 import com.firestms.repository.AssignmentRepository;
 import com.firestms.repository.CarRepository;
 import com.google.common.collect.Lists;
@@ -35,19 +38,26 @@ public class CarService {
         ).collect(Collectors.toList());
     }
 
-    public Optional<CarWithAssignments> findByRegistrationNumber(String registrationNumber) {
+    public CarWithAssignments findByRegistrationNumber(String registrationNumber) {
         List<Assignment> assignments = assignmentRepository.findAllByCarRegistrationNumber(registrationNumber);
-        return carRepository.findById(registrationNumber).map(car -> CarWithAssignments.builder()
+        return CarWithAssignments.builder()
             .assignments(assignments)
-            .registrationNumber(registrationNumber)
-            .build());
+            .registrationNumber(findCarByRegistrationNumber(registrationNumber).getRegistrationNumber())
+            .build();
+    }
+
+    public Car findCarByRegistrationNumber(String registrationNumber){
+        return carRepository.findByRegistrationNumber(registrationNumber).orElseThrow(() -> new ResourceNotFoundException(Car.class.getSimpleName(), registrationNumber));
     }
 
     public void deleteCarById(String registrationNumber) {
-
+        carRepository.deleteById(registrationNumber);
     }
 
     public Car addCar(Car car) {
+        if (carRepository.findByRegistrationNumber(car.getRegistrationNumber()).isPresent()){
+            throw new ConflictException(Car.class.getSimpleName(), car.getRegistrationNumber());
+        }
         return carRepository.save(car);
     }
 
