@@ -5,17 +5,14 @@ import com.firestms.Exception.ResourceNotFoundException;
 import com.firestms.model.Assignment;
 import com.firestms.model.Car;
 import com.firestms.model.CarWithAssignments;
-import com.firestms.model.Trailer;
 import com.firestms.repository.AssignmentRepository;
 import com.firestms.repository.CarRepository;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
