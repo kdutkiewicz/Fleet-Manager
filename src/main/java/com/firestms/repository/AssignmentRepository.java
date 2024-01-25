@@ -1,8 +1,9 @@
 package com.firestms.repository;
 
 import com.firestms.model.Assignment;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,10 +13,21 @@ public interface AssignmentRepository extends CrudRepository<Assignment, UUID> {
 
     List<Assignment> findAllByCarRegistrationNumber(String carRegistrationNumber);
 
-    List<Assignment> findAllByStartTimeAfterAndStartTimeBefore(Instant startTime, Instant endTime);
+    @Query("select a from Assignment a where " +
+        "(a.carRegistrationNumber = :carRegistrationNumber) " +
+        "and " +
+        "((a.startTime <= :startDate and a.endTime >= :startDate) " +
+        "or (a.startTime <= :endDate and a.endTime >= :endDate) " +
+        "or (a.startTime <= :startDate and a.endTime >= :endDate)) ")
+    List<Assignment> findAllAssignmentsForCarBetweenDates(@Param("carRegistrationNumber") String carRegistrationNumber, @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
-    List<Assignment> findAllByCarRegistrationNumberAndStartTimeBetweenOrEndTimeBetween(String carRegistrationNumber, Instant startTime1, Instant endTime1,Instant startTime2, Instant endTime2);
+    @Query("select a from Assignment a where " +
+        "(a.trailerRegistrationNumber = :trailerRegistrationNumber) " +
+        "and " +
+        "((a.startTime <= :startDate and a.endTime >= :startDate) " +
+        "or (a.startTime <= :endDate and a.endTime >= :endDate) " +
+        "or(a.startTime <= :startDate and a.endTime >= :endDate)) ")
+    List<Assignment> findAllAssignmentsForTrailerBetweenDates(@Param("trailerRegistrationNumber") String trailerRegistrationNumber, @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
-    List<Assignment> findAllByCarRegistrationNumberAndStartTimeIsAfterAndEndTimeBefore(String carRegistrationNumber, Instant startTime, Instant endTime);
-    List<Assignment> findAllByCarRegistrationNumberAndStartTimeIsBeforeAndEndTimeAfter(String carRegistrationNumber, Instant startTime, Instant endTime);
+
 }

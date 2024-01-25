@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Car {
-
     @Id
     private String registrationNumber;
-
-//    private String trailerRegistrationNumber = "";
 }

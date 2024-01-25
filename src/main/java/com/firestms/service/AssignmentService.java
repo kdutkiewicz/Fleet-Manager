@@ -10,7 +10,7 @@ import com.firestms.repository.CarRepository;
 import com.firestms.repository.TrailerRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Instant;
 
 @Service
 public class AssignmentService {
@@ -33,11 +33,22 @@ public class AssignmentService {
         trailerRepository.findByRegistrationNumber(assignment.getTrailerRegistrationNumber())
             .orElseThrow(() -> new ResourceNotFoundException(Trailer.class.getSimpleName(), assignment.getTrailerRegistrationNumber()));
 
-        //check if trailer isnt assignet in this time
-        if(assignmentRepository.findAllByCarRegistrationNumberAndStartTimeBetweenOrEndTimeBetween(assignment.getCarRegistrationNumber(), assignment.getStartTime(),assignment.getEndTime(), assignment.getStartTime(),assignment.getEndTime()).size() > 0) {
-            throw new AssignmentException("The Car with registration number:"+assignment.getCarRegistrationNumber()+" already has an assignment in this period of time");
+        Instant startTime = assignment.getStartTime();
+        Instant endTime = assignment.getEndTime();
+
+        //check if car isn't assignment in this time
+        if (assignmentRepository.findAllAssignmentsForCarBetweenDates(assignment.getCarRegistrationNumber(), startTime, endTime).size() > 0) {
+            throw new AssignmentException("The car with registration number:" + assignment.getCarRegistrationNumber() + " already has an assignment in this period of time");
+        }
+        //check if trailer isn't assignment to car in this time
+        if (assignmentRepository.findAllAssignmentsForTrailerBetweenDates(assignment.getTrailerRegistrationNumber(), startTime, endTime).size() > 0) {
+            throw new AssignmentException("The trailer with registration number:" + assignment.getTrailerRegistrationNumber() + " already has an assignment in this period of time");
         }
 
+        return assignmentRepository.save(assignment);
+    }
+
+    public Assignment overrideAssignment(Assignment assignment, boolean crossHitch){
         return assignmentRepository.save(assignment);
     }
 }

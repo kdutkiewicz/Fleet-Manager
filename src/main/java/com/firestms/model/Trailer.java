@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Trailer {
-
     @Id
     private String registrationNumber;
-//    private boolean isAssigned = false;
 }
