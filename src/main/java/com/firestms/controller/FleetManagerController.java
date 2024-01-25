@@ -78,4 +78,9 @@ public class FleetManagerController {
     public void deleteTrailer(@PathVariable("registrationNumber") String registrationNumber) {
         trailerService.deleteTrailerByRegistrationNumber(registrationNumber);
     }
+
+    @PostMapping("/assignment/override/{crosshitch}")
+    public Assignment overrideAssignment(@RequestBody Assignment assignment, @PathVariable("crosshitch") boolean crosshitch) {
+        return assignmentService.overrideAssignment(assignment, crosshitch);
+    }
 }

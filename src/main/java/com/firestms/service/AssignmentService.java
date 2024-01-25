@@ -11,6 +11,7 @@ import com.firestms.repository.TrailerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class AssignmentService {
@@ -26,12 +27,7 @@ public class AssignmentService {
     }
 
     public Assignment addNewAssignment(Assignment assignment) {
-        //check if resources exists
-        carRepository.findByRegistrationNumber(assignment.getCarRegistrationNumber())
-            .orElseThrow(() -> new ResourceNotFoundException(Car.class.getSimpleName(), assignment.getCarRegistrationNumber()));
-
-        trailerRepository.findByRegistrationNumber(assignment.getTrailerRegistrationNumber())
-            .orElseThrow(() -> new ResourceNotFoundException(Trailer.class.getSimpleName(), assignment.getTrailerRegistrationNumber()));
+        checkIfResourcesExists(assignment.getCarRegistrationNumber(), assignment.getTrailerRegistrationNumber());
 
         Instant startTime = assignment.getStartTime();
         Instant endTime = assignment.getEndTime();
@@ -48,7 +44,53 @@ public class AssignmentService {
         return assignmentRepository.save(assignment);
     }
 
-    public Assignment overrideAssignment(Assignment assignment, boolean crossHitch){
+    public Assignment overrideAssignment(Assignment assignment, boolean crossHitch) {
+        checkIfResourcesExists(assignment.getCarRegistrationNumber(), assignment.getTrailerRegistrationNumber());
+        List<Assignment> assignmentsForCar = assignmentRepository.findAllAssignmentsForCarBetweenDates(assignment.getCarRegistrationNumber(), assignment.getStartTime(), assignment.getEndTime());
+
+        if (assignmentsForCar.size() > 0) {
+            assignmentsForCar.forEach(carAssignment -> {
+                modifyExistingAssignments(carAssignment, assignment);
+                List<Assignment> assignmentsForTrailer = assignmentRepository.findAllAssignmentsForTrailerBetweenDates(assignment.getTrailerRegistrationNumber(), assignment.getStartTime(), assignment.getEndTime());
+                if (assignmentsForTrailer.size() > 0) {
+                    assignmentsForTrailer.forEach(trailAssignment -> {
+                        modifyExistingAssignments(trailAssignment, assignment);
+                        if (crossHitch) {
+                            assignmentRepository.save(Assignment.builder().carRegistrationNumber(trailAssignment.getCarRegistrationNumber())
+                                .trailerRegistrationNumber(carAssignment.getTrailerRegistrationNumber()).startTime(assignment.getStartTime()).endTime(assignment.getEndTime()).build());
+                        }
+                    });
+                }
+            });
+        }
         return assignmentRepository.save(assignment);
+    }
+
+    private void modifyExistingAssignments(Assignment assignmentFromDB, Assignment newAssignment) {
+        int compareStartDate = assignmentFromDB.getStartTime().compareTo(newAssignment.getStartTime());
+        int compareEndDate = assignmentFromDB.getEndTime().compareTo(newAssignment.getEndTime());
+        if (compareStartDate >= 0 && compareEndDate <= 0) {
+            assignmentRepository.deleteById(assignmentFromDB.getId());
+        } else if (compareStartDate >= 0 && compareEndDate >= 0) {
+            assignmentFromDB.setStartTime(newAssignment.getEndTime().plusSeconds(1));
+            assignmentRepository.save(assignmentFromDB);
+        } else if (compareStartDate <= 0 && compareEndDate <= 0) {
+            assignmentFromDB.setEndTime(newAssignment.getStartTime().minusSeconds(1));
+            assignmentRepository.save(assignmentFromDB);
+        } else if (compareStartDate <= 0 && compareEndDate >= 0) {
+            assignmentRepository.save(Assignment.builder().carRegistrationNumber(assignmentFromDB.getCarRegistrationNumber())
+                .trailerRegistrationNumber(assignmentFromDB.getTrailerRegistrationNumber()).startTime(newAssignment.getEndTime().plusSeconds(1)).endTime(assignmentFromDB.getEndTime()).build());
+            assignmentFromDB.setEndTime(newAssignment.getStartTime().minusSeconds(1));
+            assignmentRepository.save(assignmentFromDB);
+        }
+    }
+
+
+    private void checkIfResourcesExists(String carRegistrationNumber, String trailerRegistrationNumber) {
+        carRepository.findByRegistrationNumber(carRegistrationNumber)
+            .orElseThrow(() -> new ResourceNotFoundException(Car.class.getSimpleName(), carRegistrationNumber));
+
+        trailerRepository.findByRegistrationNumber(trailerRegistrationNumber)
+            .orElseThrow(() -> new ResourceNotFoundException(Trailer.class.getSimpleName(), trailerRegistrationNumber));
     }
 }
